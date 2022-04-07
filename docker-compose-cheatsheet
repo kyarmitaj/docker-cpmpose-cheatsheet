@@ -1,0 +1,73 @@
+## DOCKER-COMPOSE IS USED TO AUTOMATE RUNNING CONTAINERS
+
+
+## BUILDING AND DEPLOYING COMPOSE FILE IN CURRENT DIRECTORY
+
+version : !!str 3
+  services : 
+    X : 
+      images : example/X  
+      build : . 
+      
+      
+## A COMPOSE FILE FOR MYSQL AND PHPMYADMIN PRODUCTION
+
+version : !!str 3 
+  services : 
+    MySQL :
+      images : mysql:8
+      restart : unless-stopped
+      labels : 
+        -app.docker.io/name = mysql
+        -app.docker.io/env = production
+        
+    network : 
+      -database
+    
+    volume :
+      -mysql_data : /var/lib/mysql
+      
+    PhpMyAdmin :
+      images : php:latest
+      restart : unless-stopped
+      env-file : .env
+      labels : 
+        -app.docker.io/name = PhpMyAdmin
+        -app.docker.io/env = production
+      
+      networks : 
+        -edge
+        
+      volumes :
+        -PhpMyAdmin_data : /var/lib/PhpMyAdmin
+        
+    volumes : 
+      -mysql_data
+      -PhpMyAdmin_data
+    
+    netwotks :
+      -databases :
+      -edge :
+        external : true
+        
+        
+## WE CAN JOIN THE CONTAINERS TO THE ABOVE NETWORK DATABASES BY ADDING THIS SCRIPT TO THE COMPOSE FILE
+
+database :
+  driver : bridge
+  driver_opts : 
+  attachble : true
+  internal : true
+
+
+## CREATING 5 REPLICAS OF THE X IN SWORM MODE FOR STATELESS PROGRAM :
+
+docker service create --name=redis --replicas=5        
+
+
+## VIEW DOCKER-COMPOSE LOGS
+
+docker-compose logs --tail="all"
+            
+        
+     
